@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  email     String      @unique
+  name      String
+  balance   Int?        @default(0)
+  password  String
+  role      Role        @default(USER)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now())
+  portfolio Portfolio[]
+}
+
+model Company {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  stock       Stock?
+  bond        Bond?
+}
+
+model Stock {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  prices      StockPrice[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now())
+  companyId   Int              @unique
+  company     Company          @relation(fields: [companyId], references: [id])
+  portfolios  StockPortfolio[]
+}
+
+model Bond {
+  id                  Int             @id @default(autoincrement())
+  name                String          @unique
+  description         String?
+  prices              BondPrice[]
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @default(now())
+  // размер выплат по купонам
+  couponPaymentsValue Int[]
+  // даты выплат по купонам
+  couponPaymentsDates DateTime[]
+  companyId           Int             @unique
+  company             Company         @relation(fields: [companyId], references: [id])
+  portfolios          BondPortfolio[]
+}
+
+model Portfolio {
+  id      Int              @id @default(autoincrement())
+  ownerId Int              @unique
+  owner   User             @relation(fields: [ownerId], references: [id])
+  stocks  StockPortfolio[]
+  bonds   BondPortfolio[]
+}
+
+model StockPortfolio {
+  id          Int       @id @default(autoincrement())
+  count       Int
+  stockId     Int       @unique
+  portfolioId Int
+  stock       Stock     @relation(fields: [stockId], references: [id])
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+}
+
+model BondPortfolio {
+  id          Int       @id @default(autoincrement())
+  count       Int
+  bondId      Int       @unique
+  portfolioId Int
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  bond        Bond      @relation(fields: [bondId], references: [id])
+}
+
+model StockPrice {
+  id        Int      @id @default(autoincrement())
+  value     Int
+  count     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  stockId   Int
+  stock     Stock?   @relation(fields: [stockId], references: [id])
+}
+
+model BondPrice {
+  id     Int   @id @default(autoincrement())
+  value  Int
+  count  Int
+  bondId Int
+  bond   Bond? @relation(fields: [bondId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
