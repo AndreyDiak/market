@@ -28,7 +28,7 @@ model Company {
   description String?
   createdAt   DateTime @default(now())
   stock       Stock?
-  bond        Bond?
+  // bond        Bond?
 }
 
 model Stock {
@@ -43,28 +43,28 @@ model Stock {
   portfolios  StockPortfolio[]
 }
 
-model Bond {
-  id                  Int             @id @default(autoincrement())
-  name                String          @unique
-  description         String?
-  prices              BondPrice[]
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @default(now())
-  // размер выплат по купонам
-  couponPaymentsValue Int[]
-  // даты выплат по купонам
-  couponPaymentsDates DateTime[]
-  companyId           Int             @unique
-  company             Company         @relation(fields: [companyId], references: [id])
-  portfolios          BondPortfolio[]
-}
+// model Bond {
+//   id                  Int             @id @default(autoincrement())
+//   name                String          @unique
+//   description         String?
+//   prices              BondPrice[]
+//   createdAt           DateTime        @default(now())
+//   updatedAt           DateTime        @default(now())
+//   // размер выплат по купонам
+//   couponPaymentsValue Int[]
+//   // даты выплат по купонам
+//   couponPaymentsDates DateTime[]
+//   companyId           Int             @unique
+//   company             Company         @relation(fields: [companyId], references: [id])
+//   portfolios          BondPortfolio[]
+// }
 
 model Portfolio {
   id      Int              @id @default(autoincrement())
   ownerId Int              @unique
   owner   User             @relation(fields: [ownerId], references: [id])
   stocks  StockPortfolio[]
-  bonds   BondPortfolio[]
+  // bonds   BondPortfolio[]
 }
 
 model StockPortfolio {
@@ -76,14 +76,14 @@ model StockPortfolio {
   portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
 }
 
-model BondPortfolio {
-  id          Int       @id @default(autoincrement())
-  count       Int
-  bondId      Int       @unique
-  portfolioId Int
-  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
-  bond        Bond      @relation(fields: [bondId], references: [id])
-}
+// model BondPortfolio {
+//   id          Int       @id @default(autoincrement())
+//   count       Int
+//   bondId      Int       @unique
+//   portfolioId Int
+//   portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+//   bond        Bond      @relation(fields: [bondId], references: [id])
+// }
 
 model StockPrice {
   id        Int      @id @default(autoincrement())
@@ -95,13 +95,13 @@ model StockPrice {
   stock     Stock?   @relation(fields: [stockId], references: [id])
 }
 
-model BondPrice {
-  id     Int   @id @default(autoincrement())
-  value  Int
-  count  Int
-  bondId Int
-  bond   Bond? @relation(fields: [bondId], references: [id])
-}
+// model BondPrice {
+//   id     Int   @id @default(autoincrement())
+//   value  Int
+//   count  Int
+//   bondId Int
+//   bond   Bond? @relation(fields: [bondId], references: [id])
+// }
 
 enum Role {
   USER

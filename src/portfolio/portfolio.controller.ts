@@ -11,7 +11,7 @@ import { MeUserRes } from 'src/users/types';
 import { PortfolioService } from './portfolio.service';
 import {
    SELECT_PORTFOLIO_ALL,
-   SELECT_PORTFOLIO_BONDS,
+   // SELECT_PORTFOLIO_BONDS,
    SELECT_PORTFOLIO_STOCK,
 } from './select';
 import { StocksPortfolioService } from './stocks-portfolio/stocks-portfolio.service';
