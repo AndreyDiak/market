@@ -247,13 +247,6 @@ export class StocksService {
    }
 
    async sell(userId: number, stockId: number, sellStockDto: SellStockDto) {
-      const { balance } = await this.usersService.findOne(
-         { id: userId },
-         {
-            balance: true,
-         },
-      );
-
       const { count, price, sellType } = sellStockDto;
 
       // находим портфель пользователя
