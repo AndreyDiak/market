@@ -6,9 +6,12 @@ import { AuthModule } from './auth/auth.module';
 import { StockModule } from './stock/stocks.module';
 import { CompanyModule } from './company/company.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
+import { OfferModule } from './offer/offer.module';
+import { CupService } from './cup/cup.service';
+import { CupModule } from './cup/cup.module';
 
 @Module({
-   imports: [UsersModule, PrismaModule, AuthModule, StockModule, CompanyModule, PortfolioModule],
-   providers: [PrismaService],
+   imports: [UsersModule, PrismaModule, AuthModule, StockModule, CompanyModule, PortfolioModule, OfferModule, CupModule],
+   providers: [PrismaService, CupService],
 })
 export class AppModule {}

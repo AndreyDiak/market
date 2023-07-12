@@ -78,6 +78,4 @@ export class PortfolioController {
          },
       );
    }
-
-   // @raymix TODO добавить два запроса /stocks/:id и /bonds/:id
 }

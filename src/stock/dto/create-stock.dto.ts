@@ -1,56 +1,36 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
-import { EXAMPLE_STOCK_NAME } from 'src/utils';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+   EXAMPLE_COUNT,
+   EXAMPLE_DESCRIPTION,
+   EXAMPLE_ID,
+   EXAMPLE_PRICE_VALUE,
+   EXAMPLE_STOCK_NAME,
+} from 'src/utils';
 
 export class CreateStockDto {
-   @ApiProperty({ example: 'OJSC CompanyName' })
+   @ApiProperty({ example: EXAMPLE_STOCK_NAME })
    @IsNotEmpty()
    @IsString()
    readonly name: string;
 
-   @ApiProperty({ example: 100 })
+   @ApiProperty({ example: EXAMPLE_PRICE_VALUE })
    @IsNotEmpty()
    @IsNumber()
-   readonly currentPrice: number;
+   readonly price: number;
 
-   @ApiProperty({ example: 20 })
+   @ApiProperty({ example: EXAMPLE_COUNT })
    @IsNotEmpty()
    @IsNumber()
-   readonly currentCount: number;
+   readonly count: number;
 
-   @ApiProperty({ example: 'Some description text' })
+   @ApiProperty({ example: EXAMPLE_DESCRIPTION })
    @IsNotEmpty()
    @IsString()
    readonly description: string;
 
-   @ApiProperty({ example: 1 })
+   @ApiProperty({ example: EXAMPLE_ID })
    @IsNotEmpty()
    @IsNumber()
    readonly companyId: number;
-}
-
-export class FindStockDto {
-   @ApiProperty({ example: EXAMPLE_STOCK_NAME })
-   @IsNotEmpty()
-   @IsNumber()
-   stockName: string;
-}
-
-export class BuyStockDto {
-   @IsNumber()
-   @IsNotEmpty()
-   @Min(1)
-   stockCount: number;
-}
-
-export class SellStockDto {
-   @IsNumber()
-   @IsNotEmpty()
-   @Min(1)
-   stockCount: number;
-
-   @IsNumber()
-   @IsNotEmpty()
-   @Min(1)
-   stockPrice: number;
 }

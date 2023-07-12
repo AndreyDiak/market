@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, StockPortfolio } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateStockPortfolioRes } from '../types';
 import { STOCK_PORTFOLIO_DEFAULT_SELECT } from './utils';
@@ -21,28 +21,103 @@ export class StocksPortfolioService {
       }) as any;
    }
 
-   async update(id: number, data: Prisma.StockPortfolioUpdateInput) {
+   async update(
+      where: Prisma.StockPortfolioWhereUniqueInput,
+      data: Prisma.StockPortfolioUpdateInput,
+   ): Promise<CreateStockPortfolioRes> {
       return this.prisma.stockPortfolio.update({
-         where: {
-            id,
-         },
+         where,
          data,
          select: STOCK_PORTFOLIO_DEFAULT_SELECT,
       }) as any;
    }
 
-   async delete(id: number) {
+   async delete(where: Prisma.StockPortfolioWhereUniqueInput) {
       return this.prisma.stockPortfolio.delete({
-         where: {
-            id,
-         },
+         where,
       });
    }
 
-   async findOne(where: Prisma.StockWhereUniqueInput, select?: Prisma.StockPortfolioSelect) {
+   async findOne(
+      where: Prisma.StockPortfolioWhereUniqueInput,
+      select?: Prisma.StockPortfolioSelect,
+   ) {
       return this.prisma.stockPortfolio.findUnique({
          where,
          select,
       });
+   }
+
+   async findMany(where: Prisma.StockPortfolioWhereInput, select?: Prisma.StockPortfolioSelect) {
+      return this.prisma.stockPortfolio.findMany({
+         where,
+         select,
+      });
+   }
+
+   async findFirst(where: Prisma.StockPortfolioWhereInput, select?: Prisma.StockPortfolioSelect) {
+      return this.prisma.stockPortfolio.findFirst({
+         where,
+         select,
+      });
+   }
+
+   // если у нас нет
+   async createOrUpdate(
+      count: number,
+      stockId: number,
+      portfolioId: number,
+   ): Promise<CreateStockPortfolioRes> {
+      const stockPortfolio = await this.findFirst({
+         stockId,
+         portfolioId,
+      });
+
+      const { id } = stockPortfolio ?? {};
+
+      // если у нас уже есть акция то мы просто увеличиваем ее кол-во
+      if (id) {
+         return this.update(
+            { id },
+            {
+               count: {
+                  increment: count,
+               },
+            },
+         );
+      }
+
+      // если акции нет то создаем новую ячейку
+      return this.create({
+         count,
+         stockId,
+         portfolioId,
+      });
+   }
+
+   async deleteOrUpdate(count: number, stockId: number, portfolioId: number) {
+      const stockPortfolio = await this.findFirst({
+         stockId,
+         portfolioId,
+      });
+
+      const { count: stockInPortfolioCount, id } = stockPortfolio;
+
+      // если мы хотим продать все акции то удаляем ячейку
+      if (stockInPortfolioCount === count) {
+         return this.delete({ id });
+      }
+
+      // если мы продаем часть акций то просто уменьшаем их кол-во в портфеле
+      return this.update(
+         {
+            id,
+         },
+         {
+            count: {
+               decrement: count,
+            },
+         },
+      );
    }
 }
