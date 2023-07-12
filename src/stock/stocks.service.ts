@@ -199,6 +199,7 @@ export class StocksService {
                },
                {
                   updatedAt: new Date(),
+                  lastPrice: price,
                },
             );
 
@@ -346,6 +347,7 @@ export class StocksService {
                },
                {
                   updatedAt: new Date(),
+                  lastPrice: price,
                },
             );
          }
