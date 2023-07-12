@@ -23,16 +23,7 @@ export class CompanyService {
       return this.prisma.company.findUnique({
          where,
          include: {
-            stock: {
-               include: {
-                  prices: {
-                     orderBy: {
-                        value: 'desc',
-                     },
-                     take: 1,
-                  },
-               },
-            },
+            stock: true,
          },
       });
    }

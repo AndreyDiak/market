@@ -7,17 +7,7 @@ export const STOCK_PORTFOLIO_DEFAULT_SELECT: Prisma.StockPortfolioSelect = {
       select: {
          id: true,
          name: true,
-         prices: {
-            orderBy: {
-               value: 'desc',
-            },
-            take: 1,
-            select: {
-               count: true,
-               id: true,
-               value: true,
-            },
-         },
+         lastPrice: true,
       },
    },
 };

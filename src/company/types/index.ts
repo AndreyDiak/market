@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { StockCreateRes } from 'src/stock/types';
-import { EXAMPLE_COUNT, EXAMPLE_DESCRIPTION, EXAMPLE_ID, EXAMPLE_TIME } from 'src/utils';
+import { EXAMPLE_DESCRIPTION, EXAMPLE_ID, EXAMPLE_STOCK_NAME, EXAMPLE_TIME } from 'src/utils';
 
 export class CompanyFindByNameRes {
    @ApiProperty({ example: EXAMPLE_ID })
@@ -11,10 +11,8 @@ export class CompanyFindByNameRes {
 
    @ApiProperty({
       example: {
-         company: {
-            id: EXAMPLE_ID,
-            name: 'Gazprom stocks',
-         },
+         id: EXAMPLE_ID,
+         name: EXAMPLE_STOCK_NAME,
       },
    })
    stock: {

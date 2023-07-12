@@ -4,12 +4,12 @@ import { UsersModule } from 'src/users/users.module';
 import { StocksController } from './stocks.controller';
 import { StocksService } from './stocks.service';
 import { StocksPortfolioService } from 'src/portfolio/stocks-portfolio/stocks-portfolio.service';
-import { StockPriceModule } from './stock-price/stock-price.module';
-import { StockPriceService } from './stock-price/stock-price.service';
+import { OfferService } from 'src/offer/offer.service';
+import { CupService } from 'src/cup/cup.service';
 
 @Module({
-   imports: [forwardRef(() => UsersModule), StockPriceModule],
-   providers: [StocksService, PortfolioService, StocksPortfolioService, StockPriceService],
+   imports: [forwardRef(() => UsersModule)],
+   providers: [StocksService, PortfolioService, StocksPortfolioService, OfferService, CupService],
    controllers: [StocksController],
    exports: [StocksService],
 })

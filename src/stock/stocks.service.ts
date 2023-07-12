@@ -1,15 +1,18 @@
-import { Injectable, forwardRef, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Prisma, Stock } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { BuyStockDto, CreateStockDto, SellStockDto } from './dto/create-stock.dto';
-import { StockFindByIdRes, StockFindByNameRes } from './types';
-import { UsersService } from 'src/users/users.service';
+import { CupService } from 'src/cup/cup.service';
+import { OfferService } from 'src/offer/offer.service';
 import { PortfolioService } from 'src/portfolio/portfolio.service';
-import { CreateStockPortfolioRes } from 'src/portfolio/types';
 import { StocksPortfolioService } from 'src/portfolio/stocks-portfolio/stocks-portfolio.service';
-import { StockConverter } from 'src/utils/Convertor/StockConverter';
-import { StockPriceService } from './stock-price/stock-price.service';
-import { CreateStockPriceDto } from './stock-price/dto/create-stock-price.dto';
+import { CreateStockPortfolioRes } from 'src/portfolio/types';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UsersService } from 'src/users/users.service';
+import { calculateOffers } from 'src/utils/functions/calculateOffers';
+import { isEmpty } from 'src/utils/functions/isEmpty';
+import { CreateStockDto } from './dto/create-stock.dto';
+import { StockFindByIdRes, StockFindByNameRes, TRADE_OPERATION_TYPE } from './types';
+import { BuyStockDto } from './dto/buy-stock.dto';
+import { SellStockDto } from './dto/sell-stock.dto';
 
 @Injectable()
 export class StocksService {
@@ -19,7 +22,8 @@ export class StocksService {
       private readonly usersService: UsersService,
       private readonly portfolioService: PortfolioService,
       private readonly stocksPortfolioService: StocksPortfolioService,
-      private readonly stockPriceService: StockPriceService,
+      private readonly offerService: OfferService,
+      private readonly cupService: CupService,
    ) {}
 
    async findOne(
@@ -37,7 +41,7 @@ export class StocksService {
       findArgs: Prisma.StockFindManyArgs = {},
    ): Promise<StockFindByNameRes[]> {
       const { skip, take } = findArgs;
-      const stocks = await this.prisma.stock.findMany({
+      return this.prisma.stock.findMany({
          skip,
          take,
          where: {
@@ -48,17 +52,7 @@ export class StocksService {
          select: {
             id: true,
             name: true,
-            prices: {
-               orderBy: {
-                  value: 'asc',
-               },
-               take: 1,
-               select: {
-                  id: true,
-                  count: true,
-                  value: true,
-               },
-            },
+            lastPrice: true,
             company: {
                select: {
                   id: true,
@@ -67,28 +61,17 @@ export class StocksService {
             },
          },
       });
-      return stocks.map((stock) => StockConverter.convertToFindRes(stock));
    }
 
    async findAll(findArgs: Prisma.StockFindManyArgs = {}): Promise<StockFindByNameRes[]> {
       const { skip, take } = findArgs;
-      const stocks = await this.prisma.stock.findMany({
+      return this.prisma.stock.findMany({
          skip,
          take,
          select: {
             id: true,
             name: true,
-            prices: {
-               orderBy: {
-                  value: 'asc',
-               },
-               take: 1,
-               select: {
-                  id: true,
-                  count: true,
-                  value: true,
-               },
-            },
+            lastPrice: true,
             company: {
                select: {
                   id: true,
@@ -97,36 +80,44 @@ export class StocksService {
             },
          },
       });
-      return stocks.map((stock) => StockConverter.convertToFindRes(stock));
    }
 
-   async create(data: CreateStockDto): Promise<Stock> {
-      const { name, currentCount, currentPrice, description, companyId } = data;
+   async create(ownerId: number, data: CreateStockDto): Promise<Stock> {
+      const { name, count, price, description, companyId } = data;
 
-      const stock: Omit<Stock, 'id' | 'createdAt' | 'updatedAt'> = {
-         name,
-         description,
-         companyId: companyId,
-      };
-
-      const createdStock = await this.prisma.stock.create({ data: stock });
-
-      const createStockPriceDto: CreateStockPriceDto = {
-         count: currentCount,
-         value: currentPrice,
-         stockId: createdStock.id,
-      };
-
-      await this.stockPriceService.create(createStockPriceDto);
-
-      return createdStock;
-   }
-
-   async update(id: number, data: Prisma.StockUpdateInput): Promise<Stock> {
-      return this.prisma.stock.update({
-         where: {
-            id,
+      // создаем акцию в БД
+      const stock = await this.prisma.stock.create({
+         data: {
+            name,
+            description,
+            companyId,
+            lastPrice: price,
          },
+      });
+
+      // создаем первый стакан для акции
+      const cup = await this.cupService.create({
+         price,
+         stockId: stock.id,
+         totalCount: count,
+      });
+
+      // создаем предложение
+      await this.offerService.create({
+         count,
+         userId: ownerId,
+         cupId: cup.id,
+      });
+
+      return stock;
+   }
+
+   async update(
+      where: Prisma.StockWhereUniqueInput,
+      data: Prisma.StockUpdateInput,
+   ): Promise<Stock> {
+      return this.prisma.stock.update({
+         where,
          data,
       });
    }
@@ -135,135 +126,259 @@ export class StocksService {
       userId: number,
       stockId: number,
       buyStockDto: BuyStockDto,
-   ): Promise<CreateStockPortfolioRes> {
-      const user = await this.usersService.findOne({ id: userId });
-
-      const stock = await this.findOne(
-         { id: stockId },
+   ): Promise<CreateStockPortfolioRes | undefined> {
+      const { balance } = await this.usersService.findOne(
+         { id: userId },
          {
-            prices: {
-               orderBy: {
-                  value: 'asc',
+            balance: true,
+         },
+      );
+
+      const { count, price, buyType } = buyStockDto;
+
+      const fullPrice = count * price;
+
+      switch (buyType) {
+         case TRADE_OPERATION_TYPE.LIMIT_ORDER: {
+            // получаем стакан
+            const cup = await this.cupService.createOrFind(
+               { stockId, price, type: 'SELL' },
+               { price, stockId, totalCount: count, type: 'SELL' },
+            );
+            const { id: cupId } = cup;
+            // создаем предложение
+            await this.offerService.create({
+               count,
+               userId,
+               cupId,
+            });
+
+            // обновляем баланс
+            await this.usersService.update(
+               {
+                  id: userId,
                },
-               where: {
-                  count: {
-                     not: 0,
+               {
+                  balance: {
+                     decrement: fullPrice,
                   },
                },
-               take: 1,
-            },
-         },
-      );
+            );
 
-      const { balance } = user;
-
-      const { prices } = stock;
-
-      const currentPrice = prices[0];
-
-      const { value: price, count, id: stockPriceId } = currentPrice;
-
-      if (count < buyStockDto.stockCount) {
-         throw new HttpException(`Invalid stocks count, max is ${count}`, HttpStatus.BAD_REQUEST);
-      }
-
-      const fullPrice = buyStockDto.stockCount * price;
-
-      if (fullPrice > balance) {
-         throw new HttpException('Not enough money on balance', HttpStatus.BAD_REQUEST);
-      }
-
-      // новый баланс пользователя
-      await this.usersService.update(userId, {
-         balance: {
-            decrement: fullPrice,
-         },
-      });
-
-      // если мы скупили все акции по данной цене, то удаляем ячейку с ценой,
-      // иначе просто уменьшаем количество оставшихся акций
-      if (count === buyStockDto.stockCount) {
-         await this.stockPriceService.delete({
-            id: stockPriceId,
-         });
-      } else {
-         await this.stockPriceService.update(
-            {
-               id: stockPriceId,
-            },
-            {
-               count: {
-                  decrement: buyStockDto.stockCount,
+            break;
+         }
+         case TRADE_OPERATION_TYPE.BEST_PRICE: {
+            // получаем стакан
+            const cup = await this.cupService.findFirst(
+               {
+                  stockId,
+                  price,
+                  type: 'BUY',
                },
-               updatedAt: new Date(),
-            },
-         );
+               {
+                  offers: {
+                     orderBy: {
+                        createdAt: 'asc',
+                     },
+                  },
+               },
+            );
+
+            const { totalCount, offers, id: cupId } = cup;
+
+            // в теории никогда не должна срабатывать
+            if (count > totalCount) {
+               throw new HttpException(
+                  `Invalid stocks count, max is ${totalCount}`,
+                  HttpStatus.BAD_REQUEST,
+               );
+            }
+
+            if (fullPrice > balance) {
+               throw new HttpException('Not enough money on balance', HttpStatus.BAD_REQUEST);
+            }
+
+            // проходимся по предложениям в стакане и делаем выплаты держателям акций
+            await this.offerService.updateOffersAfterTrade(count, offers, 'BUY', {
+               price,
+            });
+
+            // уменьшаем кол-во акций в стакане по заданной цене
+            await this.cupService.update(
+               { id: cupId },
+               {
+                  totalCount: {
+                     decrement: count,
+                  },
+               },
+            );
+
+            // Обновляем дату изменения акции
+            await this.update(
+               {
+                  id: stockId,
+               },
+               {
+                  updatedAt: new Date(),
+               },
+            );
+
+            // обновляем баланс
+            await this.usersService.update(
+               {
+                  id: userId,
+               },
+               {
+                  balance: {
+                     decrement: fullPrice,
+                  },
+               },
+            );
+
+            // находим портфель пользователя
+            const { id: portfolioId } = await this.portfolioService.findOne({ ownerId: userId });
+
+            // обновляем или создаем запись в портфеле
+            return this.stocksPortfolioService.createOrUpdate(count, stockId, portfolioId);
+         }
+         default:
+            return null;
       }
-
-      const portfolio = await this.portfolioService.findOne(
-         { ownerId: userId },
-         {
-            stocks: true,
-         },
-      );
-
-      const { id: portfolioId, stocks } = portfolio;
-
-      const isStockAlreadyInPortfolio = stocks.find((item) => item.stockId === stockId);
-
-      if (isStockAlreadyInPortfolio) {
-         return this.stocksPortfolioService.update(isStockAlreadyInPortfolio.id, {
-            count: {
-               increment: buyStockDto.stockCount,
-            },
-         });
-      }
-
-      return this.stocksPortfolioService.create({
-         count: buyStockDto.stockCount,
-         stockId,
-         portfolioId,
-      });
    }
 
    async sell(userId: number, stockId: number, sellStockDto: SellStockDto) {
-      const user = await this.usersService.findOne({ id: userId });
-      const stock = await this.findOne(
-         { id: stockId },
+      const { balance } = await this.usersService.findOne(
+         { id: userId },
          {
-            prices: {
-               orderBy: {
-                  value: 'asc',
-               },
-            },
+            balance: true,
          },
       );
 
-      const portfolio = await this.portfolioService.findOne(
-         {
-            ownerId: userId,
-         },
-         {
-            stocks: {
-               where: {
-                  stockId: {
-                     equals: stockId,
+      const { count, price, sellType } = sellStockDto;
+
+      // находим портфель пользователя
+      const { id: portfolioId } = await this.portfolioService.findOne({ ownerId: userId });
+
+      switch (sellType) {
+         case TRADE_OPERATION_TYPE.LIMIT_ORDER: {
+            // получаме стакан
+            const cup = await this.cupService.createOrFind(
+               {
+                  stockId,
+                  price,
+                  type: 'BUY',
+               },
+               {
+                  price,
+                  stockId,
+                  totalCount: count,
+                  type: 'BUY',
+               },
+            );
+
+            const { id: cupId } = cup;
+
+            // добавляем в стакан предложение
+            await this.offerService.create({
+               count,
+               userId,
+               cupId,
+            });
+
+            // удаляем акции из портфеля
+            await this.stocksPortfolioService.deleteOrUpdate(count, stockId, portfolioId);
+
+            break;
+         }
+         case TRADE_OPERATION_TYPE.BEST_PRICE: {
+            const cup = await this.cupService.findFirst(
+               {
+                  stockId,
+                  price,
+                  type: 'SELL',
+               },
+               {
+                  offers: {
+                     orderBy: {
+                        createdAt: 'asc',
+                     },
                   },
                },
-               select: {
-                  id: true,
-                  count: true,
+            );
+
+            const { totalCount, offers, id: cupId } = cup;
+
+            const { count: maxCountToSell } = await this.stocksPortfolioService.findFirst(
+               {
+                  portfolioId,
+                  stockId,
                },
-            },
-         },
-      );
+               {
+                  count: true,
+                  id: true,
+               },
+            );
 
-      // у нас гарантированно только один элемент в массиве
-      const { id: stockPortfolioId, count: stocksInPortfolioCount } = portfolio.stocks[0];
+            // если мы хотим продать больше чем у нас есть...
+            if (count > maxCountToSell) {
+               throw new HttpException(
+                  `Invalid stocks count, max is ${maxCountToSell}`,
+                  HttpStatus.BAD_REQUEST,
+               );
+            }
 
-      console.log(sellStockDto.stockCount);
-      console.log(stocksInPortfolioCount);
+            // если мы хотим продать больше, чем готовы купить
+            if (count > totalCount) {
+               throw new HttpException(
+                  `Invalid stocks count, max is ${totalCount}`,
+                  HttpStatus.BAD_REQUEST,
+               );
+            }
 
-      return stock;
+            // удаляем акции из портфеля
+            await this.stocksPortfolioService.deleteOrUpdate(count, stockId, portfolioId);
+
+            // TODO @raymix проходимся по предложениям на покупку
+            // и добавляем пользователям акции в портфели
+            await this.offerService.updateOffersAfterTrade(count, offers, 'SELL', {
+               stockId,
+            });
+
+            // уменьшаем кол-во акций в стакане по заданной цене
+            await this.cupService.update(
+               { id: cupId },
+               {
+                  totalCount: {
+                     decrement: count,
+                  },
+               },
+            );
+
+            // полная цена за продажу акций
+            const fullPrice = count * price;
+
+            // новый баланс пользователя
+            await this.usersService.update(
+               { id: userId },
+               {
+                  balance: {
+                     increment: fullPrice,
+                  },
+               },
+            );
+
+            // Обновляем дату изменения акции
+            await this.update(
+               {
+                  id: stockId,
+               },
+               {
+                  updatedAt: new Date(),
+               },
+            );
+         }
+         default:
+            return null;
+      }
    }
 }

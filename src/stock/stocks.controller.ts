@@ -13,9 +13,12 @@ import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { Prisma, Stock } from '@prisma/client';
 import { CreateStockPortfolioRes } from 'src/portfolio/types';
 import { MeUserRes } from 'src/users/types';
-import { BuyStockDto, CreateStockDto, FindStockDto, SellStockDto } from './dto/create-stock.dto';
+import { CreateStockDto } from './dto/create-stock.dto';
 import { StocksService } from './stocks.service';
 import { StockCreateRes, StockFindByIdRes, StockFindByNameRes } from './types';
+import { FindStockDto } from './dto/find-stock.dto';
+import { BuyStockDto } from './dto/buy-stock.dto';
+import { SellStockDto } from './dto/sell-stock.dto';
 
 @Controller('stocks')
 export class StocksController {
@@ -24,8 +27,9 @@ export class StocksController {
    @Post('/create')
    @HttpCode(HttpStatus.CREATED)
    @ApiOkResponse({ type: StockCreateRes })
-   async createStock(@Body() createStockDto: CreateStockDto): Promise<Stock> {
-      return this.stockService.create(createStockDto);
+   async createStock(@Request() req, @Body() createStockDto: CreateStockDto): Promise<Stock> {
+      const { userId } = req.user as MeUserRes;
+      return this.stockService.create(userId, createStockDto);
    }
 
    @Get('/all')
@@ -73,15 +77,6 @@ export class StocksController {
    @Get('/:id')
    @ApiOkResponse({ type: StockFindByIdRes })
    async findById(@Param('id', ParseIntPipe) id: number): Promise<Partial<StockFindByIdRes>> {
-      return this.stockService.findOne(
-         { id },
-         {
-            prices: {
-               orderBy: {
-                  value: 'asc',
-               },
-            },
-         },
-      );
+      return this.stockService.findOne({ id });
    }
 }

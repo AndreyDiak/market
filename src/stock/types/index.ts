@@ -4,8 +4,8 @@ import {
    EXAMPLE_COMPANY_PREVIEW,
    EXAMPLE_DESCRIPTION,
    EXAMPLE_ID,
-   EXAMPLE_PRICE_COMPLEX,
-   EXAMPLE_PRICE_PREVIEW,
+   EXAMPLE_PRICE_VALUE,
+   EXAMPLE_STOCK_NAME,
    EXAMPLE_TIME,
 } from 'src/utils';
 
@@ -13,15 +13,11 @@ export class StockFindByNameRes {
    @ApiProperty({ example: EXAMPLE_ID })
    id: number;
 
-   @ApiProperty({ example: 'OJSC Gazprom' })
+   @ApiProperty({ example: EXAMPLE_STOCK_NAME })
    name: string;
 
-   @ApiProperty({ example: [EXAMPLE_PRICE_PREVIEW] })
-   prices: {
-      id: number;
-      count: number;
-      value: number;
-   }[];
+   @ApiProperty({ example: EXAMPLE_PRICE_VALUE })
+   lastPrice: number;
 
    @ApiProperty({
       example: EXAMPLE_COMPANY_PREVIEW,
@@ -36,25 +32,23 @@ export class StockCreateRes {
    @ApiProperty({ example: EXAMPLE_ID })
    id: number;
 
-   @ApiProperty({ example: 'OJSC Gazprom' })
+   @ApiProperty({ example: EXAMPLE_STOCK_NAME })
    name: string;
 
-   @ApiProperty({ example: [EXAMPLE_PRICE_COMPLEX] })
-   prices: {
-      id: number;
-      value: number;
-      count: number;
-      stockId: number;
-   }[];
+   @ApiProperty({ example: EXAMPLE_DESCRIPTION })
+   description: string | null;
+
+   @ApiProperty({ example: [EXAMPLE_PRICE_VALUE] })
+   prices: number[];
+
+   @ApiProperty({ example: EXAMPLE_PRICE_VALUE })
+   lastPrice: number;
 
    @ApiProperty({ example: EXAMPLE_TIME })
    createdAt: Date;
 
    @ApiProperty({ example: EXAMPLE_TIME })
    updatedAt: Date;
-
-   @ApiProperty({ example: EXAMPLE_DESCRIPTION })
-   description: string;
 
    @ApiProperty({ example: EXAMPLE_ID })
    companyId: number;
@@ -70,4 +64,14 @@ export class StockFindByIdRes extends StockCreateRes {
       description: string;
       createdAt: Date;
    };
+}
+
+export interface UsersPayback {
+   userId: number;
+   count: number;
+}
+
+export enum TRADE_OPERATION_TYPE {
+   BEST_PRICE = 'best',
+   LIMIT_ORDER = 'limit',
 }
