@@ -1,20 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Operation } from '@prisma/client';
 import { IsNotEmpty, IsNumber } from 'class-validator';
-import { EXAMPLE_COUNT, EXAMPLE_ID, EXAMPLE_PRICE_VALUE } from 'src/utils';
+import { EXAMPLES } from 'src/utils';
 
 export class CreateCupDto {
-   @ApiProperty({ example: EXAMPLE_PRICE_VALUE })
+   @ApiProperty({ example: EXAMPLES.VALUES.PRICE })
    @IsNotEmpty()
    @IsNumber()
    price: number;
 
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    @IsNotEmpty()
    @IsNumber()
    stockId: number;
 
-   @ApiProperty({ example: EXAMPLE_COUNT })
+   @ApiProperty({ example: EXAMPLES.VALUES.COUNT })
    @IsNotEmpty()
    @IsNumber()
    totalCount: number;

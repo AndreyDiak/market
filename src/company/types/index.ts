@@ -1,41 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { StockCreateRes } from 'src/stock/types';
-import { EXAMPLE_DESCRIPTION, EXAMPLE_ID, EXAMPLE_STOCK_NAME, EXAMPLE_TIME } from 'src/utils';
+import { EXAMPLES } from 'src/utils';
 
 export class CompanyFindByNameRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id: number;
 
-   @ApiProperty({ example: 'OJSC Gazprom' })
+   @ApiProperty({ example: EXAMPLES.VALUES.COMPANY_NAME })
    name: string;
 
    @ApiProperty({
-      example: {
-         id: EXAMPLE_ID,
-         name: EXAMPLE_STOCK_NAME,
-      },
+      example: EXAMPLES.PREVIEWS.STOCK,
    })
    stock: {
       id: number;
       name: string;
+      lastPrice: number;
    };
 }
 
 export class CompanyFindByIdRes extends CompanyFindByNameRes {
-   @ApiProperty({ example: EXAMPLE_DESCRIPTION })
+   @ApiProperty({ example: EXAMPLES.VALUES.DESCRIPTION })
    description: string;
 
-   @ApiProperty({ example: EXAMPLE_TIME })
+   @ApiProperty({ example: EXAMPLES.VALUES.DESCRIPTION })
    createdAt: Date;
 
    @ApiProperty({
-      example: {
-         id: EXAMPLE_ID,
-         name: 'Gazpom stocks',
-         description: EXAMPLE_DESCRIPTION,
-         prices: [],
-         companyId: EXAMPLE_ID,
-      },
+      example: EXAMPLES.FIND_BY_ID.STOCK,
    })
    stock: StockCreateRes;
 }

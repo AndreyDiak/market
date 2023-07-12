@@ -64,7 +64,7 @@ export class StocksController {
 
    @Post('/sell/:id')
    @HttpCode(HttpStatus.ACCEPTED)
-   @ApiBody({ type: BuyStockDto })
+   @ApiBody({ type: SellStockDto })
    async sell(
       @Param('id', ParseIntPipe) id: number,
       @Body() sellStockDto: SellStockDto,

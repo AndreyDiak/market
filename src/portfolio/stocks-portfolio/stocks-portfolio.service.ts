@@ -18,7 +18,7 @@ export class StocksPortfolioService {
             portfolioId,
          },
          select: STOCK_PORTFOLIO_DEFAULT_SELECT,
-      }) as any;
+      }) as Promise<CreateStockPortfolioRes>;
    }
 
    async update(
@@ -29,7 +29,7 @@ export class StocksPortfolioService {
          where,
          data,
          select: STOCK_PORTFOLIO_DEFAULT_SELECT,
-      }) as any;
+      }) as Promise<CreateStockPortfolioRes>;
    }
 
    async delete(where: Prisma.StockPortfolioWhereUniqueInput) {
