@@ -7,12 +7,11 @@ import { StocksPortfolioService } from 'src/portfolio/stocks-portfolio/stocks-po
 import { CreateStockPortfolioRes } from 'src/portfolio/types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
-import { calculateOffers } from 'src/utils/functions/calculateOffers';
-import { isEmpty } from 'src/utils/functions/isEmpty';
-import { CreateStockDto } from './dto/create-stock.dto';
-import { StockFindByIdRes, StockFindByNameRes, TRADE_OPERATION_TYPE } from './types';
 import { BuyStockDto } from './dto/buy-stock.dto';
+import { CreateStockDto } from './dto/create-stock.dto';
 import { SellStockDto } from './dto/sell-stock.dto';
+import { SELECT_PREVIEW_STOCKS } from './select';
+import { StockFindByIdRes, StockFindByNameRes, TRADE_OPERATION_TYPE } from './types';
 
 @Injectable()
 export class StocksService {
@@ -49,18 +48,8 @@ export class StocksService {
                contains: stockName,
             },
          },
-         select: {
-            id: true,
-            name: true,
-            lastPrice: true,
-            company: {
-               select: {
-                  id: true,
-                  name: true,
-               },
-            },
-         },
-      });
+         select: SELECT_PREVIEW_STOCKS,
+      }) as Promise<StockFindByNameRes[]>;
    }
 
    async findAll(findArgs: Prisma.StockFindManyArgs = {}): Promise<StockFindByNameRes[]> {
@@ -68,18 +57,8 @@ export class StocksService {
       return this.prisma.stock.findMany({
          skip,
          take,
-         select: {
-            id: true,
-            name: true,
-            lastPrice: true,
-            company: {
-               select: {
-                  id: true,
-                  name: true,
-               },
-            },
-         },
-      });
+         select: SELECT_PREVIEW_STOCKS,
+      }) as Promise<StockFindByNameRes[]>;
    }
 
    async create(ownerId: number, data: CreateStockDto): Promise<Stock> {

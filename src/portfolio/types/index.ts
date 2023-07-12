@@ -1,37 +1,37 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { StockFindByNameRes } from 'src/stock/types';
-import { EXAMPLE_STOCK_FIND_BY_NAME, EXAMPLE_COUNT, EXAMPLE_ID } from 'src/utils';
+import { EXAMPLES } from 'src/utils';
 
 export class CreateStockPortfolioRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id?: number;
 
-   @ApiProperty({ example: EXAMPLE_COUNT })
+   @ApiProperty({ example: EXAMPLES.VALUES.COUNT })
    count?: number;
 
-   @ApiProperty({ example: EXAMPLE_STOCK_FIND_BY_NAME })
+   @ApiProperty({ example: EXAMPLES.FIND_BY_NAME.STOCK })
    stock?: StockFindByNameRes;
 }
 
 export class PortfolioStockPreviewRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id: number;
 
-   @ApiProperty({ example: EXAMPLE_COUNT })
+   @ApiProperty({ example: EXAMPLES.VALUES.COUNT })
    count: number;
 
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    stockId: number;
 }
 
 export class PortfolioBondPreviewRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id: number;
 
-   @ApiProperty({ example: EXAMPLE_COUNT })
+   @ApiProperty({ example: EXAMPLES.VALUES.COUNT })
    count: number;
 
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    bondId: number;
 }
 

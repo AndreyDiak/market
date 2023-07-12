@@ -37,6 +37,7 @@ export class CompanyService {
                select: {
                   id: true,
                   name: true,
+                  lastPrice: true,
                },
             },
          },

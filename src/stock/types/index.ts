@@ -1,26 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-   EXAMPLE_COMPANY,
-   EXAMPLE_COMPANY_PREVIEW,
-   EXAMPLE_DESCRIPTION,
-   EXAMPLE_ID,
-   EXAMPLE_PRICE_VALUE,
-   EXAMPLE_STOCK_NAME,
-   EXAMPLE_TIME,
-} from 'src/utils';
+import { EXAMPLES } from 'src/utils';
 
 export class StockFindByNameRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id: number;
 
-   @ApiProperty({ example: EXAMPLE_STOCK_NAME })
+   @ApiProperty({ example: EXAMPLES.VALUES.STOCK_NAME })
    name: string;
 
-   @ApiProperty({ example: EXAMPLE_PRICE_VALUE })
+   @ApiProperty({ example: EXAMPLES.VALUES.PRICE })
    lastPrice: number;
 
    @ApiProperty({
-      example: EXAMPLE_COMPANY_PREVIEW,
+      example: EXAMPLES.PREVIEWS.COMPANY,
    })
    company?: {
       id: number;
@@ -29,34 +21,31 @@ export class StockFindByNameRes {
 }
 
 export class StockCreateRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id: number;
 
-   @ApiProperty({ example: EXAMPLE_STOCK_NAME })
+   @ApiProperty({ example: EXAMPLES.VALUES.STOCK_NAME })
    name: string;
 
-   @ApiProperty({ example: EXAMPLE_DESCRIPTION })
+   @ApiProperty({ example: EXAMPLES.VALUES.DESCRIPTION })
    description: string | null;
 
-   @ApiProperty({ example: [EXAMPLE_PRICE_VALUE] })
-   prices: number[];
-
-   @ApiProperty({ example: EXAMPLE_PRICE_VALUE })
+   @ApiProperty({ example: EXAMPLES.VALUES.PRICE })
    lastPrice: number;
 
-   @ApiProperty({ example: EXAMPLE_TIME })
+   @ApiProperty({ example: EXAMPLES.VALUES.TIME })
    createdAt: Date;
 
-   @ApiProperty({ example: EXAMPLE_TIME })
+   @ApiProperty({ example: EXAMPLES.VALUES.TIME })
    updatedAt: Date;
 
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    companyId: number;
 }
 
 export class StockFindByIdRes extends StockCreateRes {
    @ApiProperty({
-      example: EXAMPLE_COMPANY,
+      example: EXAMPLES.FIND_BY_ID.COMPANY,
    })
    company: {
       id: number;

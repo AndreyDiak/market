@@ -1,30 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-   EXAMPLE_EMAIL,
-   EXAMPLE_HASHED_PASSWORD,
-   EXAMPLE_ID,
-   EXAMPLE_NAME,
-   EXAMPLE_PASSWORD,
-   EXAMPLE_ROLE,
-   EXAMPLE_TIME,
-} from 'src/utils';
+import { EXAMPLES } from 'src/utils';
 
 export class LoginUserReq {
-   @ApiProperty({ example: EXAMPLE_EMAIL })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_EMAIL })
    email: string;
 
-   @ApiProperty({ example: EXAMPLE_PASSWORD })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_PASSWORD })
    password: string;
 }
 
 export class LoginUserRes {
    @ApiProperty({
-      example: {
-         userId: EXAMPLE_ID,
-         email: EXAMPLE_EMAIL,
-         name: EXAMPLE_NAME,
-         role: EXAMPLE_ROLE,
-      },
+      example: EXAMPLES.FIND_BY_ID.LOGIN,
    })
    user: {
       userId: number;
@@ -38,27 +25,27 @@ export class LoginUserRes {
 }
 
 export class MeUserRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    userId: number;
 
-   @ApiProperty({ example: EXAMPLE_EMAIL })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_EMAIL })
    email: string;
 
-   @ApiProperty({ example: EXAMPLE_NAME })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_NAME })
    name: string;
 
-   @ApiProperty({ example: EXAMPLE_ROLE })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_ROLE })
    role: string;
 }
 
 export class UserFindByIdRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id: number;
 
-   @ApiProperty({ example: EXAMPLE_EMAIL })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_EMAIL })
    email: string;
 
-   @ApiProperty({ example: EXAMPLE_NAME })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_NAME })
    name: string;
 }
 
@@ -68,24 +55,24 @@ export class LogoutUserRes {
 }
 
 export class SignupUserRes {
-   @ApiProperty({ example: EXAMPLE_ID })
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
    id: number;
 
-   @ApiProperty({ example: EXAMPLE_EMAIL })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_EMAIL })
    email: string;
 
-   @ApiProperty({ example: EXAMPLE_NAME })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_NAME })
    name: string;
 
-   @ApiProperty({ example: EXAMPLE_HASHED_PASSWORD })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_HASH })
    password: string;
 
-   @ApiProperty({ example: EXAMPLE_ROLE })
+   @ApiProperty({ example: EXAMPLES.VALUES.USER_ROLE })
    role: string;
 
-   @ApiProperty({ example: EXAMPLE_TIME })
+   @ApiProperty({ example: EXAMPLES.VALUES.TIME })
    created_at: string;
 
-   @ApiProperty({ example: EXAMPLE_TIME })
+   @ApiProperty({ example: EXAMPLES.VALUES.TIME })
    updated_at: string;
 }
