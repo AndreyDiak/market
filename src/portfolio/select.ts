@@ -10,18 +10,8 @@ export const SELECT_PORTFOLIO_STOCK: Prisma.PortfolioSelect = {
    },
 };
 
-// export const SELECT_PORTFOLIO_BONDS: Prisma.PortfolioSelect = {
-//    bonds: {
-//       select: {
-//          id: true,
-//          count: true,
-//          bondId: true,
-//       },
-//    },
-// };
-
 export const SELECT_PORTFOLIO_ALL: Prisma.PortfolioSelect = {
+   id: true,
    ownerId: true,
    ...SELECT_PORTFOLIO_STOCK,
-   // ...SELECT_PORTFOLIO_BONDS,
 };

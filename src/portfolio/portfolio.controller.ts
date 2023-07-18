@@ -3,18 +3,21 @@ import {
    Get,
    HttpCode,
    HttpStatus,
-   Request,
    Param,
    ParseIntPipe,
+   Request,
 } from '@nestjs/common';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { MeUserRes } from 'src/users/types';
 import { PortfolioService } from './portfolio.service';
-import {
-   SELECT_PORTFOLIO_ALL,
-   // SELECT_PORTFOLIO_BONDS,
-   SELECT_PORTFOLIO_STOCK,
-} from './select';
+import { SELECT_PORTFOLIO_ALL, SELECT_PORTFOLIO_STOCK } from './select';
 import { StocksPortfolioService } from './stocks-portfolio/stocks-portfolio.service';
+import {
+   MyPortfolioRes,
+   MyPortfolioStockById,
+   MyPortfolioStocksRes,
+   PortfolioByIdRes,
+} from './types';
 
 @Controller('portfolio')
 export class PortfolioController {
@@ -24,8 +27,9 @@ export class PortfolioController {
    ) {}
 
    @Get('/my')
+   @ApiOkResponse({ type: MyPortfolioRes })
    @HttpCode(HttpStatus.ACCEPTED)
-   async my(@Request() req) {
+   async my(@Request() req): Promise<MyPortfolioRes> {
       const { userId } = req.user as MeUserRes;
 
       return this.portfolioService.findOne(
@@ -36,15 +40,48 @@ export class PortfolioController {
       );
    }
 
-   @Get('/stocks')
+   // отдельные акции в портфолио только для себя
+   @Get('/my/stocks')
    @HttpCode(HttpStatus.ACCEPTED)
-   async getMyStocks(@Request() req) {
+   @ApiOkResponse({ type: MyPortfolioStocksRes })
+   async getMyStocks(@Request() req): Promise<MyPortfolioStocksRes> {
       const { userId } = req.user as MeUserRes;
 
       return this.portfolioService.findOne(
          { ownerId: userId },
          {
             ...SELECT_PORTFOLIO_STOCK,
+         },
+      );
+   }
+
+   // отдельныую акцию в портфолио только для себя
+   @Get('/my/stocks/:id')
+   @HttpCode(HttpStatus.ACCEPTED)
+   @ApiOkResponse({ type: MyPortfolioStockById })
+   async getPortfolioStockById(
+      @Param('id', ParseIntPipe) id: number,
+   ): Promise<MyPortfolioStockById> {
+      return this.stocksPortfolioService.findOne(
+         { id },
+         {
+            stock: {
+               include: {
+                  company: true,
+               },
+            },
+         },
+      );
+   }
+
+   @Get('/:id')
+   @HttpCode(HttpStatus.ACCEPTED)
+   @ApiOkResponse({ type: PortfolioByIdRes })
+   async getPortfolioById(@Param('id', ParseIntPipe) id: number): Promise<PortfolioByIdRes> {
+      return this.portfolioService.findOne(
+         { id },
+         {
+            ...SELECT_PORTFOLIO_ALL,
          },
       );
    }
@@ -61,21 +98,4 @@ export class PortfolioController {
    //       },
    //    );
    // }
-
-   @Get('/stocks/:id')
-   async getPortfolioStockById(@Param('id', ParseIntPipe) id: number) {
-      return this.stocksPortfolioService.findOne({ id });
-   }
-
-   @Get('/:id')
-   async getPortfolioById(@Param('id', ParseIntPipe) id: number) {
-      return this.portfolioService.findOne(
-         {
-            ownerId: id,
-         },
-         {
-            ...SELECT_PORTFOLIO_ALL,
-         },
-      );
-   }
 }

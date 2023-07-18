@@ -14,10 +14,7 @@ export class PortfolioService {
    async findOne(where: Prisma.PortfolioWhereUniqueInput, select?: Prisma.PortfolioSelect) {
       return this.prisma.portfolio.findUnique({
          where,
-         select: {
-            id: true,
-            ...select,
-         },
+         select,
       });
    }
 

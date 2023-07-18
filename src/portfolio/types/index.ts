@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { StockFindByNameRes } from 'src/stock/types';
+import { StockFindByIdRes, StockFindByNameRes } from 'src/stock/types';
 import { EXAMPLES } from 'src/utils';
 
 export class CreateStockPortfolioRes {
@@ -35,9 +35,26 @@ export class PortfolioBondPreviewRes {
    bondId: number;
 }
 
-export class PortfolioRes {
-   id: number;
-   ownerId: number;
-   stocks: PortfolioStockPreviewRes;
-   bonds: PortfolioBondPreviewRes;
+export class MyPortfolioRes {
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
+   id?: number;
+
+   @ApiProperty({ example: EXAMPLES.VALUES.ID })
+   ownerId?: number;
+
+   @ApiProperty({ example: [EXAMPLES.PREVIEWS.PORTFOLIO_STOCK] })
+   stocks?: PortfolioStockPreviewRes[];
+   // bonds: PortfolioBondPreviewRes;
 }
+
+export class MyPortfolioStocksRes {
+   @ApiProperty({ example: [EXAMPLES.PREVIEWS.PORTFOLIO_STOCK] })
+   stocks?: PortfolioStockPreviewRes[];
+}
+
+export class MyPortfolioStockById extends CreateStockPortfolioRes {
+   @ApiProperty({ example: EXAMPLES.FIND_BY_ID.STOCK })
+   stock?: StockFindByIdRes;
+}
+
+export class PortfolioByIdRes extends MyPortfolioRes {}
