@@ -19,7 +19,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { LoginUserReq, LoginUserRes, LogoutUserRes, MeUserRes, SignupUserRes } from './types';
-import { getSelectedFields } from 'src/utils';
+import { exclude, getSelectedFields } from 'src/utils';
 
 @Controller('users')
 export class UsersController {
@@ -52,7 +52,8 @@ export class UsersController {
    @ApiOkResponse({ type: MeUserRes })
    async me(@Request() req) {
       const id = req.user.userId;
-      return this.userService.findOne({ id });
+      const user = await this.userService.findOne({ id });
+      return exclude(user, ['password']);
    }
 
    @Get('/:id')

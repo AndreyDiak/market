@@ -47,7 +47,7 @@ export class StockFindByIdRes extends StockCreateRes {
    @ApiProperty({
       example: EXAMPLES.FIND_BY_ID.COMPANY,
    })
-   company: {
+   company?: {
       id: number;
       name: string;
       description: string;

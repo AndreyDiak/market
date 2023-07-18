@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, StockPortfolio } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateStockPortfolioRes } from '../types';
-import { STOCK_PORTFOLIO_DEFAULT_SELECT } from './utils';
 import { CreateStockPortfolioDto } from './dto/create-stock-portfolio.dto';
+import { STOCK_PORTFOLIO_DEFAULT_SELECT } from './utils';
 
 @Injectable()
 export class StocksPortfolioService {
@@ -40,11 +40,11 @@ export class StocksPortfolioService {
 
    async findOne(
       where: Prisma.StockPortfolioWhereUniqueInput,
-      select?: Prisma.StockPortfolioSelect,
+      include?: Prisma.StockPortfolioInclude,
    ) {
       return this.prisma.stockPortfolio.findUnique({
          where,
-         select,
+         include,
       });
    }
 

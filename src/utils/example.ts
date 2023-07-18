@@ -22,6 +22,11 @@ const PREVIEWS = {
       name: VALUES.STOCK_NAME,
       lastPrice: VALUES.PRICE,
    },
+   PORTFOLIO_STOCK: {
+      id: VALUES.ID,
+      count: VALUES.COUNT,
+      stockId: VALUES.ID,
+   },
    COMPANY: {
       id: VALUES.ID,
       name: VALUES.COMPANY_NAME,
@@ -42,6 +47,11 @@ const FIND_BY_ID = {
       createdAt: VALUES.TIME,
       updatedAt: VALUES.TIME,
       companyId: VALUES.ID,
+      company: {
+         ...PREVIEWS.COMPANY,
+         description: VALUES.DESCRIPTION,
+         createdAt: VALUES.TIME,
+      },
    },
    COMPANY: {
       ...PREVIEWS.COMPANY,
