@@ -24,7 +24,9 @@ async function bootstrap() {
 
    app.enableCors({
       credentials: true,
-      origin: ['http://localhost:3001'],
+      origin: true,
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
    });
 
    const config = new DocumentBuilder()

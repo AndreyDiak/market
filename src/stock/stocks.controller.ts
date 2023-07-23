@@ -7,18 +7,20 @@ import {
    Param,
    ParseIntPipe,
    Post,
+   Query,
    Request,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
-import { Prisma, Stock } from '@prisma/client';
+import { Stock } from '@prisma/client';
 import { CreateStockPortfolioRes } from 'src/portfolio/types';
 import { MeUserRes } from 'src/users/types';
+import { BuyStockDto } from './dto/buy-stock.dto';
 import { CreateStockDto } from './dto/create-stock.dto';
+import { FindStockDto } from './dto/find-stock.dto';
+import { SellStockDto } from './dto/sell-stock.dto';
 import { StocksService } from './stocks.service';
 import { StockCreateRes, StockFindByIdRes, StockFindByNameRes } from './types';
-import { FindStockDto } from './dto/find-stock.dto';
-import { BuyStockDto } from './dto/buy-stock.dto';
-import { SellStockDto } from './dto/sell-stock.dto';
+import { PAGINATION_LIMIT } from 'src/utils/constants';
 
 @Controller('stocks')
 export class StocksController {
@@ -34,8 +36,22 @@ export class StocksController {
 
    @Get('/all')
    @ApiOkResponse({ type: StockFindByNameRes })
-   async all(@Body() stockFindManyArgs: Prisma.StockFindManyArgs): Promise<StockFindByNameRes[]> {
-      return this.stockService.findAll(stockFindManyArgs);
+   async all(
+      @Query('page', ParseIntPipe) page: number,
+      @Query('limit', ParseIntPipe) limit: number,
+   ): Promise<StockFindByNameRes[]> {
+      const take = limit ?? PAGINATION_LIMIT;
+      const skip = (page - 1) * take;
+
+      return this.stockService.findAll({
+         skip,
+         take,
+      });
+   }
+
+   @Get('/count')
+   async getCount(): Promise<number> {
+      return this.stockService.getStocksCount();
    }
 
    @Get('/findByName/:name')
@@ -44,9 +60,16 @@ export class StocksController {
    @ApiOkResponse({ type: StockFindByNameRes })
    async findByName(
       @Param('name') name: string,
-      @Body() stockFindManyArgs: Prisma.StockFindManyArgs,
+      @Query('page', ParseIntPipe) page: number,
+      @Query('limit', ParseIntPipe) limit: number,
    ) {
-      return this.stockService.findByName(name, stockFindManyArgs);
+      const take = limit ?? PAGINATION_LIMIT;
+      const skip = (page - 1) * take;
+
+      return this.stockService.findByName(name, {
+         take,
+         skip,
+      });
    }
 
    @Post('/buy/:id')
@@ -77,6 +100,11 @@ export class StocksController {
    @Get('/:id')
    @ApiOkResponse({ type: StockFindByIdRes })
    async findById(@Param('id', ParseIntPipe) id: number): Promise<Partial<StockFindByIdRes>> {
-      return this.stockService.findOne({ id });
+      return this.stockService.findOne(
+         { id },
+         {
+            company: true,
+         },
+      );
    }
 }
