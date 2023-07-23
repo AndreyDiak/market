@@ -52,8 +52,19 @@ export class StocksService {
       }) as Promise<StockFindByNameRes[]>;
    }
 
+   async getStocksCount(): Promise<number> {
+      return this.prisma.stock
+         .findMany({
+            select: {
+               id: true,
+            },
+         })
+         .then((res) => res.length);
+   }
+
    async findAll(findArgs: Prisma.StockFindManyArgs = {}): Promise<StockFindByNameRes[]> {
       const { skip, take } = findArgs;
+
       return this.prisma.stock.findMany({
          skip,
          take,

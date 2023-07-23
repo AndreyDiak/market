@@ -9,9 +9,19 @@ import { PortfolioModule } from './portfolio/portfolio.module';
 import { OfferModule } from './offer/offer.module';
 import { CupService } from './cup/cup.service';
 import { CupModule } from './cup/cup.module';
+import { CupGateway } from './app.gateway';
 
 @Module({
-   imports: [UsersModule, PrismaModule, AuthModule, StockModule, CompanyModule, PortfolioModule, OfferModule, CupModule],
-   providers: [PrismaService, CupService],
+   imports: [
+      UsersModule,
+      PrismaModule,
+      AuthModule,
+      StockModule,
+      CompanyModule,
+      PortfolioModule,
+      OfferModule,
+      CupModule,
+   ],
+   providers: [PrismaService, CupService, CupGateway],
 })
 export class AppModule {}

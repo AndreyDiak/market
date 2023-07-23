@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { Cup, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCupDto } from './dto/create-cup.dto';
-import { Cup, Prisma } from '@prisma/client';
 
 @Injectable()
 export class CupService {
@@ -22,6 +22,15 @@ export class CupService {
 
    async update(where: Prisma.CupWhereUniqueInput, data: Prisma.CupUpdateInput): Promise<Cup> {
       return this.prisma.cup.update({ where, data });
+   }
+
+   async findMany(where: Prisma.CupWhereInput, findArgs?: Prisma.CupFindManyArgs): Promise<Cup[]> {
+      const { orderBy, take } = findArgs;
+      return this.prisma.cup.findMany({
+         where,
+         orderBy,
+         take,
+      });
    }
 
    async findFirst(where: Prisma.CupWhereInput, include?: Prisma.CupInclude) {
