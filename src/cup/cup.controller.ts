@@ -1,5 +1,5 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { CUP_PAGINATION_LIMIT } from 'src/utils/constants';
+import { CONSTANTS } from 'src/utils/constants';
 import { CupService } from './cup.service';
 import { CupType } from './types';
 
@@ -22,7 +22,7 @@ export class CupController {
             orderBy: {
                price: type === 'BUY' ? 'asc' : 'desc',
             },
-            take: take ?? CUP_PAGINATION_LIMIT,
+            take: take ?? CONSTANTS.CUP_PAGINATION_LIMIT,
          },
       );
    }

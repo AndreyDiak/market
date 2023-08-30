@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Trend } from '@prisma/client';
 import { StockCreateRes } from 'src/stock/types';
 import { EXAMPLES } from 'src/utils';
 
@@ -25,6 +26,9 @@ export class CompanyFindByIdRes extends CompanyFindByNameRes {
 
    @ApiProperty({ example: EXAMPLES.VALUES.DESCRIPTION })
    createdAt: Date;
+
+   @ApiProperty({ example: EXAMPLES.VALUES.TRENDS })
+   trends: Trend;
 
    @ApiProperty({
       example: EXAMPLES.FIND_BY_ID.STOCK,

@@ -191,6 +191,8 @@ export class StocksService {
             // проходимся по предложениям в стакане и делаем выплаты держателям акций
             await this.offerService.updateOffersAfterTrade(count, offers, 'BUY', {
                price,
+               stockId,
+               userId,
             });
 
             // уменьшаем кол-во акций в стакане по заданной цене
@@ -326,6 +328,7 @@ export class StocksService {
             // и добавляем пользователям акции в портфели
             await this.offerService.updateOffersAfterTrade(count, offers, 'SELL', {
                stockId,
+               userId,
             });
 
             // уменьшаем кол-во акций в стакане по заданной цене

@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PortfolioService } from 'src/portfolio/portfolio.service';
-import { StockModule } from 'src/stock/stocks.module';
+import { StockModule } from 'src/stock/stock.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { StocksPortfolioService } from 'src/portfolio/stocks-portfolio/stocks-portfolio.service';

@@ -18,9 +18,9 @@ import { BuyStockDto } from './dto/buy-stock.dto';
 import { CreateStockDto } from './dto/create-stock.dto';
 import { FindStockDto } from './dto/find-stock.dto';
 import { SellStockDto } from './dto/sell-stock.dto';
-import { StocksService } from './stocks.service';
+import { StocksService } from './stock.service';
 import { StockCreateRes, StockFindByIdRes, StockFindByNameRes } from './types';
-import { PAGINATION_LIMIT } from 'src/utils/constants';
+import { CONSTANTS } from 'src/utils/constants';
 
 @Controller('stocks')
 export class StocksController {
@@ -37,11 +37,11 @@ export class StocksController {
    @Get('/all')
    @ApiOkResponse({ type: StockFindByNameRes })
    async all(
-      @Query('page', ParseIntPipe) page: number,
-      @Query('limit', ParseIntPipe) limit: number,
+      @Query('page', ParseIntPipe) page?: number,
+      @Query('limit', ParseIntPipe) limit?: number,
    ): Promise<StockFindByNameRes[]> {
-      const take = limit ?? PAGINATION_LIMIT;
-      const skip = (page - 1) * take;
+      const take = limit ?? CONSTANTS.PAGINATION_LIMIT;
+      const skip = ((page ?? 1) - 1) * take;
 
       return this.stockService.findAll({
          skip,
@@ -54,16 +54,16 @@ export class StocksController {
       return this.stockService.getStocksCount();
    }
 
-   @Get('/findByName/:name')
+   @Get('/findByName')
    @ApiBody({ type: FindStockDto })
    @HttpCode(HttpStatus.ACCEPTED)
    @ApiOkResponse({ type: StockFindByNameRes })
    async findByName(
-      @Param('name') name: string,
+      @Query('name') name: string,
       @Query('page', ParseIntPipe) page: number,
       @Query('limit', ParseIntPipe) limit: number,
    ) {
-      const take = limit ?? PAGINATION_LIMIT;
+      const take = limit ?? CONSTANTS.PAGINATION_LIMIT;
       const skip = (page - 1) * take;
 
       return this.stockService.findByName(name, {

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { EXAMPLES } from 'src/utils';
 
-export class LoginUserReq {
+export class LoginUserDto {
    @ApiProperty({ example: EXAMPLES.VALUES.USER_EMAIL })
    email: string;
 
@@ -10,18 +10,8 @@ export class LoginUserReq {
 }
 
 export class LoginUserRes {
-   @ApiProperty({
-      example: EXAMPLES.FIND_BY_ID.LOGIN,
-   })
-   user: {
-      userId: number;
-      email: string;
-      name: string;
-      role: string;
-   };
-
-   @ApiProperty({ example: 'User logged in' })
-   message: string;
+   @ApiProperty({ example: EXAMPLES.VALUES.TOKEN })
+   access_token: string;
 }
 
 export class MeUserRes {
@@ -31,11 +21,8 @@ export class MeUserRes {
    @ApiProperty({ example: EXAMPLES.VALUES.USER_EMAIL })
    email: string;
 
-   @ApiProperty({ example: EXAMPLES.VALUES.USER_NAME })
-   name: string;
-
-   @ApiProperty({ example: EXAMPLES.VALUES.USER_ROLE })
-   role: string;
+   // @ApiProperty({ example: EXAMPLES.VALUES.USER_ROLE })
+   // role: string;
 }
 
 export class UserFindByIdRes {

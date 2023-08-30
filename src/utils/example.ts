@@ -1,9 +1,12 @@
+import { Trend } from '@prisma/client';
+
 // constants for example variables
 const VALUES = {
    ID: 1,
    COUNT: 10000,
    PRICE: 1000,
    DESCRIPTION: 'Some description text about this model',
+   TEXT: 'Some text of post or comment',
    TIME: '2023-06-30T21:42:55.931Z',
    USER_NAME: 'Andrey',
    USER_EMAIL: 'andrey@mail.ru',
@@ -14,6 +17,8 @@ const VALUES = {
    COMPANY_NAME: 'PJSC Gazprom',
    OPERATION: 'BUY',
    TRADE: 'best',
+   TOKEN: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJyb2Rp',
+   TRENDS: [Trend.HEALTH, Trend.IT, Trend.MINING, Trend.PRODUCTION, Trend.TECH, Trend.TRADE],
 };
 
 const PREVIEWS = {
@@ -72,26 +77,3 @@ export const EXAMPLES = {
    FIND_BY_NAME,
    FIND_BY_ID,
 };
-// export const EXAMPLE_PRICE_COMPLEX = {
-//    ...EXAMPLE_PRICE_PREVIEW,
-//    stockId: EXAMPLE_ID,
-// };
-
-// export const EXAMPLE_COMPANY_PREVIEW = {
-//    id: EXAMPLE_ID,
-//    name: 'Gazprom',
-// };
-
-// export const EXAMPLE_COMPANY = {
-//    ...EXAMPLE_COMPANY_PREVIEW,
-//    description: EXAMPLE_DESCRIPTION,
-//    createdAt: EXAMPLE_TIME,
-// };
-
-// export const EXAMPLE_STOCK_FIND_BY_NAME = {
-//    id: EXAMPLE_ID,
-//    name: EXAMPLE_STOCK_NAME,
-//    currentPrice: EXAMPLE_PRICE_VALUE,
-//    prices: [EXAMPLE_PRICE_PREVIEW],
-//    company: EXAMPLE_COMPANY_PREVIEW,
-// };
