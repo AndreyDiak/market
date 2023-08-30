@@ -18,6 +18,7 @@ import {
    MyPortfolioStocksRes,
    PortfolioByIdRes,
 } from './types';
+import { GetCurrentUserId } from 'src/utils/decorators';
 
 @Controller('portfolio')
 export class PortfolioController {
@@ -29,9 +30,7 @@ export class PortfolioController {
    @Get('/my')
    @ApiOkResponse({ type: MyPortfolioRes })
    @HttpCode(HttpStatus.ACCEPTED)
-   async my(@Request() req): Promise<MyPortfolioRes> {
-      const { userId } = req.user as MeUserRes;
-
+   async my(@GetCurrentUserId() userId: number): Promise<MyPortfolioRes> {
       return this.portfolioService.findOne(
          { ownerId: userId },
          {
@@ -44,9 +43,7 @@ export class PortfolioController {
    @Get('/my/stocks')
    @HttpCode(HttpStatus.ACCEPTED)
    @ApiOkResponse({ type: MyPortfolioStocksRes })
-   async getMyStocks(@Request() req): Promise<MyPortfolioStocksRes> {
-      const { userId } = req.user as MeUserRes;
-
+   async getMyStocks(@GetCurrentUserId() userId: number): Promise<MyPortfolioStocksRes> {
       return this.portfolioService.findOne(
          { ownerId: userId },
          {
@@ -55,7 +52,7 @@ export class PortfolioController {
       );
    }
 
-   // отдельныую акцию в портфолио только для себя
+   // отдельныую акцию в портфеле только для себя
    @Get('/my/stocks/:id')
    @HttpCode(HttpStatus.ACCEPTED)
    @ApiOkResponse({ type: MyPortfolioStockById })

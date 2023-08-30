@@ -8,37 +8,45 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  name      String
-  role      Role       @default(USER)
-  email     String     @unique
-  password  String
-  balance   Int        @default(0)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  offers    Offer[]
-  portfolio Portfolio?
+  id           Int        @id @default(autoincrement())
+  name         String
+  role         Role       @default(USER)
+  email        String     @unique
+  password     String
+  balance      Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now())
+  refreshToken String?    
+  offers       Offer[]
+  portfolio    Portfolio?
+  purchase     Deal[]     @relation("buyer")
+  sales        Deal[]     @relation("seller")
+  notes        Note[]
 }
 
 model Company {
   id          Int      @id @default(autoincrement())
   name        String   @unique
-  description String?
+  description String
+  trends      Trend[]
   createdAt   DateTime @default(now())
   stock       Stock?
 }
 
 model Stock {
-  id          Int             @id @default(autoincrement())
-  name        String          @unique
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
   description String?
-  companyId   Int             @unique
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @default(now())
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now())
   lastPrice   Int
   cups        Cup[]
-  company     Company         @relation(fields: [companyId], references: [id])
   portfolios  StockPortfolio[]
+  deals       Deal[]
+  predictions Prediction[]
+  notes       Note[]
+  companyId   Int              @unique
+  company     Company          @relation(fields: [companyId], references: [id])
 }
 
 model Portfolio {
@@ -52,7 +60,7 @@ model StockPortfolio {
   id          Int       @id @default(autoincrement())
   count       Int
   portfolioId Int
-  stockId     Int       
+  stockId     Int
   portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
   stock       Stock     @relation(fields: [stockId], references: [id])
 }
@@ -60,12 +68,13 @@ model StockPortfolio {
 model Cup {
   id         Int       @id @default(autoincrement())
   price      Int
-  type       Operation @default(BUY)
   totalCount Int
   stockId    Int
+  type       Operation @default(BUY)
   stock      Stock     @relation(fields: [stockId], references: [id])
   offers     Offer[]
 }
+
 model Offer {
   id        Int      @id @default(autoincrement())
   count     Int
@@ -74,6 +83,51 @@ model Offer {
   createdAt DateTime @default(now())
   cup       Cup      @relation(fields: [cupId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Deal {
+  id       Int       @id @default(autoincrement())
+  type     Operation
+  price    Int
+  count    Int
+  buyerId  Int
+  sellerId Int
+  stockId  Int
+  date     DateTime  @default(now())
+  stock    Stock     @relation(fields: [stockId], references: [id])
+  buyer    User      @relation("buyer", fields: [buyerId], references: [id])
+  seller   User      @relation("seller", fields: [sellerId], references: [id])
+}
+
+model Post {
+  id                Int          @id @default(autoincrement())
+  authorId          Int
+  title             String
+  text              String
+  attachedStocksIds Int[]
+  predictions       Prediction[]
+  createdAt         DateTime     @default(now())
+}
+
+model Prediction {
+  id        Int      @id @default(autoincrement())
+  authorId  Int
+  expiresAt DateTime
+  price     Int
+  createdAt DateTime @default(now())
+  postId    Int?
+  stockId   Int?
+  stock     Stock?   @relation(fields: [stockId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
+}
+
+model Note {
+  id       Int    @id @default(autoincrement())
+  text     String
+  authorId Int
+  stockId  Int
+  stock    Stock  @relation(fields: [stockId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id])
 }
 
 enum Operation {
@@ -86,4 +140,11 @@ enum Role {
   ADMIN
 }
 
-
+enum Trend {
+  IT
+  MINING
+  TECH
+  TRADE
+  PRODUCTION
+  HEALTH
+}

@@ -9,14 +9,9 @@ export class CompanyService {
    constructor(private readonly prisma: PrismaService) {}
 
    async create(data: CreateCompanyDto): Promise<Company> {
-      const { name, description } = data;
-
-      const company: Omit<Company, 'id' | 'createdAt'> = {
-         name,
-         description,
-      };
-
-      return this.prisma.company.create({ data: company });
+      return this.prisma.company.create({
+         data,
+      });
    }
 
    async findOne(where: Prisma.CompanyWhereUniqueInput): Promise<any> {

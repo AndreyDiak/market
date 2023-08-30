@@ -1,5 +1,4 @@
 import {
-   MessageBody,
    OnGatewayConnection,
    OnGatewayDisconnect,
    OnGatewayInit,
@@ -9,9 +8,9 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { CupService } from './cup/cup.service';
-import { CUP_PAGINATION_LIMIT } from './utils/constants';
-import { CupType } from './cup/types';
+import { CupType } from './types';
+import { CupService } from './cup.service';
+import { CONSTANTS } from 'src/utils/constants';
 
 interface HandleCupGetBody {
    type: CupType;
@@ -47,7 +46,7 @@ export class CupGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
             orderBy: {
                price: type === 'BUY' ? 'asc' : 'desc',
             },
-            take: CUP_PAGINATION_LIMIT,
+            take: CONSTANTS.CUP_PAGINATION_LIMIT,
          },
       );
 
@@ -66,10 +65,7 @@ export class CupGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
    handleConnection(client: Socket, ...args: any[]) {
       console.log(`${client.id} connected`);
 
-      const { stockId: queryStockId } = client.handshake.query;
-
-      this.stockId = Number(queryStockId);
-      // type = queryType;
+      this.stockId = Number(client.handshake.query.stockId);
    }
 
    handleDisconnect(client: Socket) {

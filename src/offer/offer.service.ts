@@ -6,11 +6,13 @@ import { UsersService } from 'src/users/users.service';
 import { calculateOffers } from 'src/utils/functions/calculateOffers';
 import { StocksPortfolioService } from 'src/portfolio/stocks-portfolio/stocks-portfolio.service';
 import { PortfolioService } from 'src/portfolio/portfolio.service';
+import { DealService } from 'src/deal/deal.service';
 
 @Injectable()
 export class OfferService {
    constructor(
       private readonly prisma: PrismaService,
+      private readonly dealSerivce: DealService,
       private readonly usersService: UsersService,
       private readonly portfolioService: PortfolioService,
       private readonly stockPortfolioService: StocksPortfolioService,
@@ -47,12 +49,13 @@ export class OfferService {
       tradeType: Operation,
       payload: {
          price?: number;
-         stockId?: number;
+         stockId: number;
+         userId: number;
       },
    ) {
       const { idsToUpdate } = calculateOffers(count, offers);
 
-      const { price, stockId } = payload;
+      const { price, stockId, userId: initiatorUserId } = payload;
 
       await Promise.all(
          idsToUpdate.map(async (idToUpdate) => {
@@ -96,6 +99,15 @@ export class OfferService {
                   id,
                });
             }
+
+            await this.dealSerivce.create({
+               count,
+               price,
+               stockId,
+               type: tradeType,
+               sellerId: tradeType === 'BUY' ? userId : initiatorUserId,
+               buyerId: tradeType === 'BUY' ? initiatorUserId : userId,
+            });
          }),
       );
    }
